@@ -5,20 +5,38 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder> {
 
     List<File> fileList;
 
-    public FileAdapter (List<File> fileList) {
-        this.fileList = fileList;
+    OnFileItemClick onFileItemClick;
+
+    public FileAdapter (List<File> fileList, OnFileItemClick onFileItemClick) {
+        this.fileList = new ArrayList<>(fileList);
+        this.onFileItemClick = onFileItemClick;
+    }
+
+    public void deleteFile(File file) {
+        int index = fileList.indexOf(file);
+        if (index > -1) {
+            fileList.remove(index);
+            notifyItemRemoved(index);
+        }
+    }
+
+    public void addFile(File file) {
+        fileList.add(0, file);
+        notifyItemInserted(0);
     }
 
     @NonNull
@@ -37,7 +55,16 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
             holder.imgFileItemIcon.setImageResource(R.drawable.baseline_insert_drive_file_24);
         }
         holder.tvFileItemName.setText(file.getName());
-
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (file.isDirectory()) {
+                    onFileItemClick.onItemCLick(fileList.get(holder.getAdapterPosition()));
+                } else if (file.isFile()) {
+                    Toast.makeText(holder.imgFileItemIcon.getContext(), "Can't Open Files.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -56,5 +83,9 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
             tvFileItemName = itemView.findViewById(R.id.tvFileItemName);
             fileItemParent = itemView.findViewById(R.id.fileItemParent);
         }
+    }
+
+    public interface OnFileItemClick {
+        void onItemCLick(File file);
     }
 }

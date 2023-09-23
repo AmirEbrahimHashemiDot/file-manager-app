@@ -20,15 +20,21 @@ public class MainActivity extends AppCompatActivity {
 
         frameFileMain = findViewById(R.id.frameFileMain);
         File file = getExternalFilesDir(null);
-        Bundle bundle = new Bundle();
-        bundle.putString("path", file.getPath());
+        assert file != null;
+        listFile(file.getPath(), false);
 
+    }
+
+    public void listFile(String path, boolean addToBackStack) {
+        Bundle bundle = new Bundle();
+        bundle.putString("path", path);
         FileFragment fileFragment = new FileFragment();
         fileFragment.setArguments(bundle);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if (addToBackStack) {
+            transaction.addToBackStack(null);
+        }
         transaction.replace(R.id.frameFileMain, fileFragment);
         transaction.commit();
-
-
     }
 }
